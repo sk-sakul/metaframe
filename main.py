@@ -9,6 +9,81 @@ from dataclasses import dataclass
 
 from PIL import Image, ImageOps, ImageDraw, ImageFont, ExifTags
 from colorthief import ColorThief
+
+
+@dataclass
+class Dimensions:
+    """ Class for all the weird dimension calculations"""
+    width: int = 640
+    height: int = 800
+    border_color: str = "white"
+    border_topoffset = int = 0
+
+    image_width: int = 600
+
+    text1_height: int = 100
+    text1_fontsize: str = 22
+    text1_color: str = "Black"
+
+    text2_height: int = 150
+    text2_fontsize: str = 16
+    text2_color: str = "Gray"
+
+    text3_height: int = 100
+    text3_fontsize: str = 18
+    text3_color: str = "Black"
+
+    text4_height: int = 150
+    text4_fontsize: str = 16
+    text4_color: str = "Gray"
+
+    palette_position: int = 100
+    palette_height: int = 75
+    palette_count: int = 5
+
+    def border_side(self):
+        return round((self.width - self.image_width)/2)
+
+    def border_top(self, image_height):
+        return round((self.height - image_height + self.border_topoffset)/2)
+
+    def border_bottom(self, image_height):
+        return round((self.height - image_height - self.border_topoffset)/2)
+
+    def palette_step(self):
+        return round(self.image_width / self.palette_count)
+
+    def palette_y(self, image_height):
+        return self.border_top(image_height) + image_height + self.palette_position
+
+
+d = Dimensions()
+
+
+def read_exif_data():
+    return 0
+
+
+def calculate_color_palette():
+    return 0
+
+
+def resize_image():
+    return 0
+
+
+def add_image_border():
+    return 0
+
+
+def add_text():
+    return 0
+
+
+def add_color_palette():
+    return 0
+
+
 def print_hi():
     im = Image.open("sample.jpg")
     print(im.format, im.size, im.mode)
