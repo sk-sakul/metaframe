@@ -20,41 +20,42 @@ class Dimensions:
     border_topoffset = int = 0
 
     image_width: int = 600
+    image_height: int = 0
 
-    text1_height: int = 100
+    text1_y: int = 120
     text1_fontsize: str = 22
     text1_color: str = "Black"
 
-    text2_height: int = 150
+    text2_y: int = 150
     text2_fontsize: str = 16
     text2_color: str = "Gray"
 
-    text3_height: int = 100
+    text3_y: int = 120
     text3_fontsize: str = 18
     text3_color: str = "Black"
 
-    text4_height: int = 150
+    text4_y: int = 150
     text4_fontsize: str = 16
     text4_color: str = "Gray"
 
-    palette_position: int = 100
+    palette_position: int = 25
     palette_height: int = 75
     palette_count: int = 5
 
     def border_side(self):
         return round((self.width - self.image_width)/2)
 
-    def border_top(self, image_height):
-        return round((self.height - image_height + self.border_topoffset)/2)
+    def border_top(self):
+        return round((self.height - self.image_height + self.border_topoffset)/2)
 
-    def border_bottom(self, image_height):
-        return round((self.height - image_height - self.border_topoffset)/2)
+    def border_bottom(self):
+        return round((self.height - self.image_height - self.border_topoffset)/2)
 
     def palette_step(self):
         return round(self.image_width / self.palette_count)
 
-    def palette_y(self, image_height):
-        return self.border_top(image_height) + image_height + self.palette_position
+    def palette_y(self):
+        return self.border_top() + self.image_height + self.palette_position
 
 
 d = Dimensions()
