@@ -63,27 +63,106 @@ class Dimensions:
 d = Dimensions()
 
 
-def read_exif_data():
-    return 0
+def read_exif_im(im: Image) -> dict:
+    logging.info("Reading EXIF data from file: %s" % im.filename)
+    logging.debug("Image format: %s Image size: %s Mode: %s" % (im.format, im.size, im.mode))
+
+    exif = {
+        ExifTags.TAGS[k]: v
+        for k, v in im._getexif().items()
+        if k in ExifTags.TAGS
+    }
+    logging.info("Exif data from the file are: %s" % exif)
+
+    return exif
 
 
-def calculate_color_palette():
-    return 0
+def read_exif_file(file: str) -> dict:
+    im = Image.open(file)
+    return read_exif_im(im)
 
 
-def resize_image():
-    return 0
+def calculate_color_palette(file: str, palette_count: int) -> list:
+
+    color_thief = ColorThief(file)
+
+    dominant_color = color_thief.get_color(quality=1)
+    logging.debug("Image dominant color: %s" % str(dominant_color))
+
+    palette = color_thief.get_palette(color_count=5, quality=1)
+    logging.info("Color palette: %s" % str(palette))
+
+    return palette
 
 
-def add_image_border():
-    return 0
+def resize_image(im: Image, dims: Dimensions) -> Image:
+
+    percent = (dims.image_width / float(im.size[0]))
+    hsize = int((float(im.size[1]) * float(percent)))
+
+    logging.info("Resizing image to: width %d x %d (%f percent)" % (dims.image_width, hsize, percent))
+
+    im = im.resize((dims.image_width, hsize), Image.Resampling.LANCZOS)
+    dims.image_height = hsize
+    logging.debug("New image size: %s" % str(im.size))
+
+    return im
 
 
-def add_text():
-    return 0
+def add_image_border(im: Image, dims: Dimensions) -> Image:
+
+    bg_color = dims.border_color
+    bg_border = (dims.border_side(), dims.border_top(), dims.border_side(), dims.border_bottom())
+    logging.info("Border color: %s \nBorder size: %s" % (bg_color, bg_border))
+    resized_im = ImageOps.expand(im, border=bg_border, fill=bg_color)
+    logging.debug("New image size: %s" % str(im.size))
+
+    return resized_im
 
 
-def add_color_palette():
+def nice_shutter(exposure_time: float) -> str:
+    exp = round(1 / exposure_time)
+    return "1/%ss" % str(exp)
+
+
+def add_text(im: Image, exif_data: dict, dims: Dimensions) -> Image:
+    camera = str(exif_data["Model"])
+    lens = str(exif_data["LensModel"])
+    shot_info = "%smm f/%s %s ISO%s" % (
+    exif_data["FocalLengthIn35mmFilm"], exif_data["ApertureValue"], nice_shutter(exif_data["ExposureTime"]), exif_data["ISOSpeedRatings"])
+    shot_date = datetime.datetime.strptime(exif_data["DateTime"], "%Y:%m:%d %H:%M:%S").strftime("%H:%M:%S %Y:%m:%d")
+
+    im_draw = ImageDraw.Draw(im)
+    text1_font = ImageFont.truetype("fonts/Panamera-Black.ttf", dims.text1_fontsize)
+    text2_font = ImageFont.truetype("fonts/Panamera-Black.ttf", dims.text2_fontsize)
+    text3_font = ImageFont.truetype("fonts/Panamera-Black.ttf", dims.text3_fontsize)
+    text4_font = ImageFont.truetype("fonts/Panamera-Black.ttf", dims.text4_fontsize)
+
+    im_draw.text((dims.border_side(), dims.text1_y), camera, fill=dims.text1_color, font=text1_font, anchor="lt")
+    im_draw.text((dims.border_side(), dims.text2_y), lens, fill=dims.text2_color, font=text2_font, anchor="lt")
+
+    im_draw.text((dims.image_width + dims.border_side(), dims.text3_y), shot_info, fill=dims.text3_color, font=text3_font, anchor="rt")
+
+    lenght = im_draw.textlength(shot_info, font=text3_font, )
+    im_draw.text((dims.image_width + dims.border_side() - lenght, dims.text4_y), shot_date, fill=dims.text4_color, font=text4_font, anchor="lt")
+
+    return im
+
+
+def add_color_palette(im: Image, palette: list, dims: Dimensions, palette_reverse: bool = False) -> Image:
+    im_draw = ImageDraw.Draw(im)
+
+    if palette_reverse:
+        palette.reverse()
+
+    step = round(dims.image_width / dims.palette_count)
+
+    for x in range(dims.border_side(), dims.image_width + dims.border_side(), step):
+        im_draw.rectangle([(x, dims.palette_y()), (x + step, dims.palette_y() + dims.palette_height)], fill=palette.pop())
+
+    return im
+
+
     return 0
 
 
