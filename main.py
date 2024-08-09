@@ -163,6 +163,19 @@ def add_color_palette(im: Image, palette: list, dims: Dimensions, palette_revers
     return im
 
 
+def main(file):
+    photo = Image.open(file)
+
+    photo_exif = read_exif_im(photo)
+    photo_palette = calculate_color_palette(file, d.palette_count)
+    photo = resize_image(photo, d)
+    photo = add_image_border(photo, d)
+    photo = add_text(photo, photo_exif, d)
+    photo = add_color_palette(photo, photo_palette, d)
+
+    photo.show()
+
+
     return 0
 
 
@@ -227,7 +240,7 @@ def print_hi():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi()
     logging.basicConfig(level=logging.DEBUG)
+    main("sample.jpg")
 
 # EOF
