@@ -6,10 +6,12 @@
 
 import datetime
 from dataclasses import dataclass
+import logging
 
 from PIL import Image, ImageOps, ImageDraw, ImageFont, ExifTags
 from colorthief import ColorThief
 
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Dimensions:
@@ -147,5 +149,6 @@ def print_hi():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi()
+    logging.basicConfig(level=logging.DEBUG)
 
 # EOF
